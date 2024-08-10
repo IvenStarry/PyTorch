@@ -25,9 +25,9 @@ class MyData(Dataset):
         self.root_dir = root_dir
         self.label_dir = label_dir
         self.path = os.path.join(self.root_dir, self.label_dir)
-        self.img_path = os.listdir(self.path) # 获取图片的所有地址列表
+        self.img_path = os.listdir(self.path) # 获取所有图片名称列表
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx): # 通过[]去访问 输入一个索引值key完成后续操作，一般用于迭代序列
         img_name = self.img_path[idx]
         img_item_path = os.path.join(self.root_dir, self.label_dir, img_name) # 获取一张图片的位置
         img = Image.open(img_item_path)
