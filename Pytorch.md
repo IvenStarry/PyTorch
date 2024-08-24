@@ -178,253 +178,28 @@ writer.close()
 **激活函数**：是在人工神经网络的神经元上运行的函数，负责将神经元的输入映射到输出端，也是上层节点的输出和下层节点的输入之间具有一个函数关系
 ![](https://cdn.jsdelivr.net/gh/IvenStarry/Image/MarkdownImage/202408221611289.png)
 ```python
-import torch
-import torchvision.datasets
-from torch import nn
-from torch.nn import Linear
-from torch.utils.data import DataLoader
- 
-dataset = torchvision.datasets.CIFAR10("../data",train=False,transform=torchvision.transforms.ToTensor(),download=True)
-dataloader = DataLoader(dataset,batch_size=64,drop_last=True)
- 
-class Tudui(nn.Module):
-    def __init__(self):
-        super(Tudui, self).__init__()
-        self.linear1 = Linear(196608,10)
-    def forward(self,input):
-        output = self.linear1(input)
-        return output
- 
-tudui = Tudui()
- 
-for data in dataloader:
-    imgs,targets = data
-    print(imgs.shape)  #torch.Size([64, 3, 32, 32])
-    # output = torch.reshape(imgs,(1,1,1,-1))  # 想把图片展平
-    # print(output.shape)  # torch.Size([1, 1, 1, 196608])
-    # output = tudui(output)
-    # print(output.shape)  # torch.Size([1, 1, 1, 10])
-    output = torch.flatten(imgs)   #摊平
-    print(output.shape)   #torch.Size([196608])
-    output = tudui(output)
-    print(output.shape)   #torch.Size([10])
-```
 
+```
+## 神经网络_线性层及其他层
+|层名|作用|
+|-|-|
+|批标准化层(Normalization Layers)|加快神经网络的训练速度|
+|循环层(Recurrent Layers)|特定的网络结构,适用于RNN、LSTM等框架，常用于文字识别中|
+|变压器层(Transformer Layers)|特定网络中使用|
+|失活层(Dropout Layers)|防止过拟合|
+|||
+|(Sparse Layers)|特定网络中使用|
 ## 神经网络_搭建小实战和 Sequential 的使用
-![alt text](image-3.png)
-![alt text](image.png)
-```python
-from torch import nn
-from torch.nn import Conv2d, MaxPool2d, Flatten, Linear
- 
- 
-class Tudui(nn.Module):
-    def __init__(self):
-        super(Tudui, self).__init__()
-        self.conv1 = Conv2d(in_channels=3, out_channels=32, kernel_size=5, padding=2)  #第一个卷积
-        self.maxpool1 = MaxPool2d(kernel_size=2)   #池化
-        self.conv2 = Conv2d(32,32,5,padding=2)  #维持尺寸不变，所以padding仍为2
-        self.maxpool2 = MaxPool2d(2)
-        self.conv3 = Conv2d(32,64,5,padding=2)
-        self.maxpool3 = MaxPool2d(2)
-        self.flatten = Flatten()  #展平为64x4x4=1024个数据
-        # 经过两个线性层：第一个线性层（1024为in_features，64为out_features)、第二个线性层（64为in_features，10为out_features)
-        self.linear1 = Linear(1024,64)
-        self.linear2 = Linear(64,10)  #10为10个类别，若预测的是概率，则取最大概率对应的类别，为该图片网络预测到的类别
-    def forward(self,x):   #x为input
-        x = self.conv1(x)
-        x = self.maxpool1(x)
-        x = self.conv2(x)
-        x = self.maxpool2(x)
-        x = self.conv3(x)
-        x = self.maxpool3(x)
-        x = self.flatten(x)
-        x = self.linear1(x)
-        x = self.linear2(x)
-        return x
- 
-tudui = Tudui()
-print(tudui)
-```
-```python
-import torch
-from torch import nn
-from torch.nn import Conv2d, MaxPool2d, Flatten, Linear, Sequential
- 
- 
-class Tudui(nn.Module):
-    def __init__(self):
-        super(Tudui, self).__init__()
-        self.model1 = Sequential(
-            Conv2d(3,32,5,padding=2),
-            MaxPool2d(2),
-            Conv2d(32,32,5,padding=2),
-            MaxPool2d(2),
-            Conv2d(32,64,5,padding=2),
-            MaxPool2d(2),
-            Flatten(),
-            Linear(1024,64),
-            Linear(64,10)
-        )
- 
-    def forward(self,x):   #x为input
-        x = self.model1(x)
-        return x
- 
-tudui = Tudui()
-print(tudui)
- 
-input = torch.ones((64,3,32,32))  #全是1，batch_size=64,3通道，32x32
-output = tudui(input)
-print(output.shape)
-```
 
+```python
+
+```
 ## 损失函数与反向传播
 **梯度下降法**
-![alt text](image-1.png)
-L1 loss
+
+
 ```python
-import torch
-from torch.nn import L1Loss
- 
-# 实际数据或网络默认情况下就是float类型，不写测试案例的话一般不需要加dtype
-inputs = torch.tensor([1,2,3],dtype=torch.float32)   # 计算时要求数据类型为浮点数，不能是整型的long
-targets = torch.tensor([1,2,5],dtype=torch.float32)
- 
-inputs = torch.reshape(inputs,(1,1,1,3))   # 1 batch_size, 1 channel, 1行3列
-targets = torch.reshape(targets,(1,1,1,3))
- 
-loss = L1Loss()
-result = loss(inputs,targets)
-print(result)
-```
-均方误差
-```python
-import torch
-from torch import nn
- 
-# 实际数据或网络默认情况下就是float类型，不写测试案例的话一般不需要加dtype
-inputs = torch.tensor([1,2,3],dtype=torch.float32)   # 计算时要求数据类型为浮点数，不能是整型的long
-targets = torch.tensor([1,2,5],dtype=torch.float32)
- 
-inputs = torch.reshape(inputs,(1,1,1,3))   # 1 batch_size, 1 channel, 1行3列
-targets = torch.reshape(targets,(1,1,1,3))
- 
-loss_mse = nn.MSELoss()
-result_mse = loss_mse(inputs,targets)
- 
-print(result_mse)
-```
-交叉熵
-![alt text](image-2.png)
-```python
-x = torch.tensor([0.1,0.2,0.3])
-y = torch.tensor([1])
-x = torch.reshape(x,(1,3))
-loss_cross = nn.CrossEntropyLoss()
-result_cross = loss_cross(x,y)
-print(result_cross)
+
 ```
 
 ## 优化器
-SGD优化器
-```python
-import torch
-import torchvision.datasets
-from torch import nn
-from torch.nn import Conv2d, MaxPool2d, Flatten, Linear, Sequential
-from torch.utils.data import DataLoader
- 
-# 加载数据集并转为tensor数据类型
-dataset = torchvision.datasets.CIFAR10("../data",train=False,transform=torchvision.transforms.ToTensor(),download=True)
-# 加载数据集
-dataloader = DataLoader(dataset,batch_size=1)
- 
-# 创建网络名叫Tudui
-class Tudui(nn.Module):
-    def __init__(self):
-        super(Tudui, self).__init__()
-        self.model1 = Sequential(
-            Conv2d(3,32,5,padding=2),
-            MaxPool2d(2),
-            Conv2d(32,32,5,padding=2),
-            MaxPool2d(2),
-            Conv2d(32,64,5,padding=2),
-            MaxPool2d(2),
-            Flatten(),
-            Linear(1024,64),
-            Linear(64,10)
-        )
- 
-    def forward(self,x):   # x为input，forward前向传播
-        x = self.model1(x)
-        return x
- 
-# 计算loss
-loss = nn.CrossEntropyLoss()
- 
-# 搭建网络
-tudui = Tudui()
- 
-# 设置优化器
-optim = torch.optim.SGD(tudui.parameters(),lr=0.01)  # SGD随机梯度下降法
- 
-for data in dataloader:
-    imgs,targets = data  # imgs为输入，放入神经网络中
-    outputs = tudui(imgs)  # outputs为输入通过神经网络得到的输出，targets为实际输出
-    result_loss = loss(outputs,targets)
-    optim.zero_grad()  # 把网络模型中每一个可以调节的参数对应梯度设置为0
-    result_loss.backward()  # backward反向传播求出每一个节点的梯度，是对result_loss，而不是对loss
-    optim.step()  # 对每个参数进行调优
-```
-```python
-import torch
-import torchvision.datasets
-from torch import nn
-from torch.nn import Conv2d, MaxPool2d, Flatten, Linear, Sequential
-from torch.utils.data import DataLoader
- 
-# 加载数据集并转为tensor数据类型
-dataset = torchvision.datasets.CIFAR10("../data",train=False,transform=torchvision.transforms.ToTensor(),download=True)
-dataloader = DataLoader(dataset,batch_size=1)
- 
-# 创建网络名叫Tudui
-class Tudui(nn.Module):
-    def __init__(self):
-        super(Tudui, self).__init__()
-        self.model1 = Sequential(
-            Conv2d(3,32,5,padding=2),
-            MaxPool2d(2),
-            Conv2d(32,32,5,padding=2),
-            MaxPool2d(2),
-            Conv2d(32,64,5,padding=2),
-            MaxPool2d(2),
-            Flatten(),
-            Linear(1024,64),
-            Linear(64,10)
-        )
- 
-    def forward(self,x):   # x为input，forward前向传播
-        x = self.model1(x)
-        return x
- 
-# 计算loss
-loss = nn.CrossEntropyLoss()
- 
-# 搭建网络
-tudui = Tudui()
- 
-# 设置优化器
-optim = torch.optim.SGD(tudui.parameters(),lr=0.01)  # SGD随机梯度下降法
-for epoch in range(20):
-    running_loss = 0.0  # 在每一轮开始前将loss设置为0
-    for data in dataloader:  # 该循环相当于只对数据进行了一轮学习
-        imgs,targets = data  # imgs为输入，放入神经网络中
-        outputs = tudui(imgs)  # outputs为输入通过神经网络得到的输出，targets为实际输出
-        result_loss = loss(outputs,targets)
-        optim.zero_grad()  # 把网络模型中每一个可以调节的参数对应梯度设置为0
-        result_loss.backward()  # backward反向传播求出每一个节点的梯度，是对result_loss，而不是对loss
-        optim.step()  # 对每个参数进行调优
-        running_loss = running_loss + result_loss  # 每一轮所有loss的和
-    print(running_loss)
-```
