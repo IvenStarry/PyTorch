@@ -182,13 +182,18 @@ writer.close()
 ```
 ## 神经网络_线性层及其他层
 |层名|作用|
-|-|-|
-|批标准化层(Normalization Layers)|加快神经网络的训练速度|
-|循环层(Recurrent Layers)|特定的网络结构,适用于RNN、LSTM等框架，常用于文字识别中|
+|:-:|:-:|
+|边缘填充层(Padding Layers)|设置边缘填充的方法类型|
+|批标准化层(Normalization Layers)|加快神经网络的训练速度，防止过拟合|
+|循环层(Recurrent Layers)|特定的网络结构，RNN、LSTM等框架，常用于文字识别中|
 |变压器层(Transformer Layers)|特定网络中使用|
-|失活层(Dropout Layers)|防止过拟合|
-|||
-|(Sparse Layers)|特定网络中使用|
+|线性层(Linear Layers)|对传入数据应用仿射线性变换 $y=xA^T+b$|
+|失活层(Dropout Layers)|以概率p随机清零输入张量的一些元素,防止过拟合|
+|Sparse Layers|特定网络中使用，自然语言处理|
+|Distance Function|计算两个值的误差|
+|Loss Function|误差计算|
+
+
 ## 神经网络_搭建小实战和 Sequential 的使用
 
 ```python
