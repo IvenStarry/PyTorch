@@ -192,13 +192,123 @@ writer.close()
 |Sparse Layers|特定网络中使用，自然语言处理|
 |Distance Function|计算两个值的误差|
 |Loss Function|误差计算|
+|Flatten|将输入展开为一维张量|
 
+线性层示意图
+![](https://cdn.jsdelivr.net/gh/IvenStarry/Image/MarkdownImage/202408261546302.png)
+```python
+import torch
+import torchvision
+from torch.utils.data import DataLoader
+from torch import nn
+from torch.nn import Linear
+
+'''
+torch.nn.Linear(in_features, out_features, bias=True, device=None, dtype=None)
+in_features：输入特征（输入样本大小） (int)
+out_features：输出特征（输出样本大小） (int)
+bias：是否添加偏置项 (bool)
+'''
+dataset = torchvision.datasets.CIFAR10("related_data", train=False, transform=torchvision.transforms.ToTensor())
+dataloader = DataLoader(dataset, batch_size=64, drop_last=True)
+
+class MyNetwork(nn.Module):
+    def __init__(self):
+        super(MyNetwork, self).__init__()
+        self.linear1 = Linear(196608, 10)
+    
+    def forward(self, input):
+        output = self.linear1(input)
+        return output
+
+mynetwork = MyNetwork()
+
+for data in dataloader:
+    imgs, targets = data
+    # print(imgs.shape) # (64, 3, 32, 32)
+    
+    output = torch.flatten(imgs) # flatten 将输入转换成一维tensor
+    # output = torch.reshape(imgs, (1, 1, 1, -1))
+    print(output.shape) # flatten(196608) reshape(1, 1, 1, 196608)
+    
+    output = mynetwork(output)
+    # print(output.shape) # (1, 1, 1, 10)
+```
 
 ## 神经网络_搭建小实战和 Sequential 的使用
-
+CIFAR-10网络结构与Padding、Stride参数计算
+![](https://cdn.jsdelivr.net/gh/IvenStarry/Image/MarkdownImage/202408261549763.png)
+Tensorboard可视化网络
+![](https://cdn.jsdelivr.net/gh/IvenStarry/Image/MarkdownImage/202408261530858.png)
 ```python
+import torch
+from torch import nn
+from torch.nn import Sequential, Conv2d, MaxPool2d, Flatten, Linear
+from torch.utils.tensorboard import SummaryWriter
+'''
+torch.nn.Sequential(*args: Module)
+连接网络结构
+'''
 
+# 两种定义网络结构的方法
+class MyNetwork(nn.Module):
+    def __init__(self):
+        super(MyNetwork, self).__init__()
+        self.conv1 = Conv2d(in_channels=3, out_channels=32, kernel_size=5, stride=1, padding=2)
+        self.maxpool1 = MaxPool2d(2)
+        self.conv2 = Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=1, padding=2)
+        self.maxpool2 = MaxPool2d(2)
+        self.conv3 = Conv2d(in_channels=32, out_channels=64, kernel_size=5, stride=1, padding=2)
+        self.maxpool3 = MaxPool2d(2)
+        self.flatten = Flatten()
+        self.linear1 = Linear(in_features=1024, out_features=64)
+        self.linear2 = Linear(in_features=64, out_features=10)
+    
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.maxpool1(x)
+        x = self.conv2(x)
+        x = self.maxpool2(x)
+        x = self.conv3(x)
+        x = self.maxpool3(x)
+        x = self.flatten(x)
+        x = self.linear1(x)
+        x = self.linear2(x)
+        return x
+
+
+class MyNetwork(nn.Module):
+    def __init__(self):
+        super(MyNetwork, self).__init__()
+        self.model1 = Sequential(
+            Conv2d(in_channels=3, out_channels=32, kernel_size=5, stride=1, padding=2),
+            MaxPool2d(2),
+            Conv2d(in_channels=32, out_channels=32, kernel_size=5, stride=1, padding=2),
+            MaxPool2d(2),
+            Conv2d(in_channels=32, out_channels=64, kernel_size=5, stride=1, padding=2),
+            MaxPool2d(2),
+            Flatten(),
+            Linear(in_features=1024, out_features=64),
+            Linear(in_features=64, out_features=10)
+        )
+    
+    def forward(self, x):
+        x = self.model1(x)
+        return x
+
+
+mynetwork = MyNetwork()
+print(mynetwork)
+
+input = torch.ones((64, 3, 32, 32)) # 全1张量
+output = mynetwork(input)
+print(output.shape)
+
+writer = SummaryWriter("logs")
+writer.add_graph(mynetwork, input) # 计算图
+writer.close()
 ```
+
 ## 损失函数与反向传播
 **梯度下降法**
 
