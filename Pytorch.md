@@ -786,7 +786,7 @@ for data in dataloader:
 
 ## 优化器
 
-
+> optimizer.zero_grad_() 把上一步训练的每个参数的梯度清零，防止影响后续的梯度更新
 ## 现有网络模型的及修改
 
 ## 网络模型的保存与读取
