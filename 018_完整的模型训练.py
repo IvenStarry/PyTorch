@@ -1,5 +1,6 @@
 import torch
 import torchvision
+import time
 from torch.utils.data import DataLoader
 from torch import nn
 from torch.nn import Sequential, Conv2d, MaxPool2d, Flatten, Linear
@@ -60,6 +61,7 @@ total_test_step = 0
 epoch = 10
 # 添加Tensorboard
 writer = SummaryWriter("logs_network")
+start_time = time.time()
 
 for i in range(epoch):
     print(f"---------第 {i + 1} 轮训练开始---------")
@@ -77,6 +79,8 @@ for i in range(epoch):
 
         total_training_step += 1
         if total_training_step % 100 == 0:
+            end_time = time.time()
+            print("前100轮使用时间 %.10f" % (end_time - start_time))
             print("训练次数:{}, loss:{}".format(total_training_step, loss)) # 不加item会显示loss的数据类型(Tensor[])，加item只显示数值
             writer.add_scalar("Training Loss", loss.item(), total_training_step) # 绘制折线图
     

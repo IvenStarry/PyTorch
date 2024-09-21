@@ -913,6 +913,8 @@ torch.save(mynetwork, "related_data/MyNetwork.pth")
 > 在不同电脑上生成的日志文件或是不同版本的Tensorboard可能会导致图像不能显示或显示不完整
 
 ## 完整的模型训练套路
+正确率的代码实现
+![](https://cdn.jsdelivr.net/gh/IvenStarry/Image/MarkdownImage/202409211416444.png)
 ```python
 import torch
 import torchvision
@@ -1038,3 +1040,19 @@ writer.close()
 # print(preds == targets)
 # print((preds == targets).sum()) # sum输出对应位置相等的的个数
 ```
+
+## GPU训练
+`.cuda()`可以使用的位置或方法
+- 网络模型
+- 数据（输入、标注）
+- 损失函数
+
+
+## 完整的模型验证
+
+
+## 查看开源项目
+Github演示项目：https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix
+若运行前需要传入的参数设置为required=True，则需要在运行py文件前传参，如果不想麻烦，可以自行前往相应的部分添加default参数(默认值)
+`python XXX.py --参数名 值`
+![](https://cdn.jsdelivr.net/gh/IvenStarry/Image/MarkdownImage/202409211711612.png)
